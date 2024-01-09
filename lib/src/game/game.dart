@@ -104,7 +104,6 @@ class _MyGameState extends State<MyGame> {
     setState(() {});
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      print('flip');
       cardFlips = switch (level) {
         1 => List.generate(8, (index) => true),
         2 => List.generate(24, (index) => true),
@@ -125,7 +124,7 @@ class _MyGameState extends State<MyGame> {
   }
 
   void extendSquare() {
-    final extendSquare = List.generate(13, (index) => index + 1);
+    final extendSquare = List.generate(12, (index) => index + 1);
     extendSquare.shuffle();
     type.addAll(extendSquare.sublist(0, 5));
   }
