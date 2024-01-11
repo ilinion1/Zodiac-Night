@@ -1,6 +1,7 @@
 abstract class AppImages {
   // backgrounds
   static const splash = 'assets/images/splash.png';
+  static const mainBackground = 'assets/images/mainBackground.png';
   static const levelBackground = 'assets/images/background.png';
 
   // platform

@@ -143,7 +143,7 @@ class MPageTest extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppImages.splash),
+          image: AssetImage(AppImages.mainBackground),
           fit: BoxFit.cover,
         ),
       ),
