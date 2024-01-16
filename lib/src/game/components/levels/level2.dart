@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zodiac_night/src/game/components/card_widget.dart';
 
-class Level2 extends StatefulWidget {
-  const Level2({
+class ZnLevel2 extends StatefulWidget {
+  const ZnLevel2({
     super.key,
     required this.type,
     required this.cardFlips,
@@ -20,10 +20,10 @@ class Level2 extends StatefulWidget {
   final Function(int) onItemPressed;
 
   @override
-  State<Level2> createState() => _Level2State();
+  State<ZnLevel2> createState() => _ZnLevel2State();
 }
 
-class _Level2State extends State<Level2> {
+class _ZnLevel2State extends State<ZnLevel2> {
   // for row start
   int lastIndex = 0;
 
@@ -63,7 +63,7 @@ class _Level2State extends State<Level2> {
                   // print('Current index: $index');
                   print(widget.type);
                   final itemIndex = lastIndex + index;
-                  return CardWidget(
+                  return ZnCardWidget(
                     value: widget.type[itemIndex],
                     isFlipped: widget.cardFlips[itemIndex],
                     isDone: widget.isDone[itemIndex],

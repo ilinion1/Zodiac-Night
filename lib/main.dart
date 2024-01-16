@@ -2,39 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zodiac_night/src/common/app_images.dart';
 import 'package:zodiac_night/src/common/widgets/custom_button.dart';
+import 'package:zodiac_night/src/common/widgets/money_widget.dart';
 import 'package:zodiac_night/src/controllers/settings_controller.dart';
-import 'package:zodiac_night/src/game/components/rules.dart';
-import 'package:zodiac_night/src/game/components/settings.dart';
-import 'package:zodiac_night/src/game/game.dart';
+import 'package:zodiac_night/src/game/components/level_page.dart';
+import 'package:zodiac_night/src/game/components/main_page.dart';
+import 'package:zodiac_night/src/game/components/rules_page.dart';
+import 'package:zodiac_night/src/game/components/settings_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ZnMyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ZnMyApp extends StatelessWidget {
+  const ZnMyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(393, 852),
+    return const ScreenUtilInit(
+      designSize: Size(393, 852),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: ANimPage(),
+        home: ZnProgressPage(),
       ),
     );
   }
 }
 
-class ANimPage extends StatefulWidget {
+class ZnProgressPage extends StatefulWidget {
+  const ZnProgressPage({super.key});
+
   @override
   State createState() => _MyAnimatedProgressBarState();
 }
 
-class _MyAnimatedProgressBarState extends State<ANimPage>
+class _MyAnimatedProgressBarState extends State<ZnProgressPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
+  late ZnSettingsController model;
 
   @override
   void initState() {
@@ -46,6 +51,7 @@ class _MyAnimatedProgressBarState extends State<ANimPage>
     _progressAnimation =
         Tween(begin: 0.0, end: 1.0).animate(_progressController);
     _progressController.forward();
+    model = ZnSettingsController();
   }
 
   void _splsg(AnimationStatus status) {
@@ -53,9 +59,22 @@ class _MyAnimatedProgressBarState extends State<ANimPage>
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => SettingsProvider(
-            model: SettController()..initSettings(),
-            child: const initaudio(child: MPageTest()),
+          builder: (_) => ZnSettingsProvider(
+            model: model,
+            child: ZnInitAudio(
+              child: FutureBuilder(
+                future: model.initSettings(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return const ZnPageTest();
+                  } else if (snapshot.hasError) {
+                    return const Text('Error');
+                  } else {
+                    return const ZnFastSplashScreen();
+                  }
+                },
+              ),
+            ),
           ),
         ),
       );
@@ -67,7 +86,7 @@ class _MyAnimatedProgressBarState extends State<ANimPage>
     return DecoratedBox(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppImages.splash),
+          image: AssetImage(ZnAppImages.splash),
           fit: BoxFit.cover,
         ),
       ),
@@ -88,7 +107,7 @@ class _MyAnimatedProgressBarState extends State<ANimPage>
                       child: Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(5.w),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -106,8 +125,8 @@ class _MyAnimatedProgressBarState extends State<ANimPage>
                             child: LinearProgressIndicator(
                               backgroundColor: Colors.green.shade100,
                               color: Color.lerp(
-                                Color(0xFFA9008E),
-                                Color(0xFF640555),
+                                const Color(0xFFA9008E),
+                                const Color(0xFF640555),
                                 _progressAnimation.value,
                               ),
                               value: _progressAnimation.value,
@@ -134,16 +153,43 @@ class _MyAnimatedProgressBarState extends State<ANimPage>
   }
 }
 
-class MPageTest extends StatelessWidget {
-  const MPageTest({Key? key});
+class ZnPageTest extends StatefulWidget {
+  const ZnPageTest({super.key});
+
+  @override
+  State<ZnPageTest> createState() => _ZnPageTestState();
+}
+
+class _ZnPageTestState extends State<ZnPageTest> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final model = ZnSettingsProvider.watch(context).model;
+      final difference = model.dateTime.difference(DateTime.now());
+      print(model.dateTime);
+      print(difference);
+      if (difference.inDays < -1) {
+        showDialog(
+          context: context,
+          builder: (context) => DailyLoginWidget(
+            child: ContentWidget(
+              model: model,
+            ),
+          ),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final model = SettingsProvider.watch(context).model;
+    final model = ZnSettingsProvider.watch(context).model;
+
     return DecoratedBox(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppImages.mainBackground),
+          image: AssetImage(ZnAppImages.mainBackground),
           fit: BoxFit.cover,
         ),
       ),
@@ -154,37 +200,39 @@ class MPageTest extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              ZnScoreWidget(score: model.score),
               const SizedBox(height: 165),
-              CustomButtonDefolut(
+              ZnCustomButton(
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => SettingsProvider(
+                    builder: (_) => ZnSettingsProvider(
                       model: model,
-                      child: MyGame(level: model.level),
+                      // child: MyGame(level: model.level),
+                      child: const ZnLevelMap(),
                     ),
                   ),
                 ),
                 text: 'New Game',
               ),
               const SizedBox(height: 25),
-              CustomButtonDefolut(
+              ZnCustomButton(
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const RulesPageDef(),
+                    builder: (_) => const ZnRulesPage(),
                   ),
                 ),
                 text: 'Rules',
               ),
               const SizedBox(height: 25),
-              CustomButtonDefolut(
+              ZnCustomButton(
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => SettingsProvider(
+                    builder: (_) => ZnSettingsProvider(
                       model: model,
-                      child: SettingsPageWithState(),
+                      child: const ZnSettingsPage(),
                     ),
                   ),
                 ),
@@ -199,24 +247,24 @@ class MPageTest extends StatelessWidget {
   }
 }
 
-class initaudio extends StatefulWidget {
-  const initaudio({Key? key, required this.child});
+class ZnInitAudio extends StatefulWidget {
+  const ZnInitAudio({super.key, required this.child});
 
   final Widget child;
 
   @override
-  State createState() => initaudiostate();
+  State createState() => ZnInitAudioState();
 }
 
-class initaudiostate extends State<initaudio> with WidgetsBindingObserver {
+class ZnInitAudioState extends State<ZnInitAudio> with WidgetsBindingObserver {
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (AppLifecycleState.paused == state) {
-      final model = SettingsProvider.read(context)!.model;
+      final model = ZnSettingsProvider.read(context)!.model;
       await model.stopAudio();
     } else if (AppLifecycleState.resumed == state) {
-      if (SettingsProvider.read(context)!.model.sound) {
-        final model = SettingsProvider.read(context)!.model;
+      if (ZnSettingsProvider.read(context)!.model.sound) {
+        final model = ZnSettingsProvider.read(context)!.model;
         if (model.sound) {
           await model.playAudio();
         }
@@ -240,10 +288,33 @@ class initaudiostate extends State<initaudio> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (value) async {
-        final model = SettingsProvider.read(context)!.model;
+        final model = ZnSettingsProvider.read(context)!.model;
         await model.stopAudio();
       },
       child: widget.child,
+    );
+  }
+}
+
+class ZnFastSplashScreen extends StatelessWidget {
+  const ZnFastSplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(ZnAppImages.splash),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      ),
     );
   }
 }

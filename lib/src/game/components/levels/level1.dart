@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:zodiac_night/src/game/components/card_widget.dart';
 
-class Level1 extends StatelessWidget {
-  const Level1({
+class ZnLevel1 extends StatelessWidget {
+  const ZnLevel1({
     super.key,
     required this.type,
     required this.cardFlips,
@@ -27,7 +27,7 @@ class Level1 extends StatelessWidget {
         crossAxisCount: 4,
       ),
       itemBuilder: (context, index) {
-        return CardWidget(
+        return ZnCardWidget(
           value: type[index],
           isFlipped: cardFlips[index],
           isDone: isDone[index],
@@ -36,7 +36,7 @@ class Level1 extends StatelessWidget {
               : success!
                   ? Colors.green
                   : Colors.red,
-          onPressed: () => onItemPressed(index),
+          onPressed: () async => await onItemPressed(index),
         );
       },
       itemCount: type.length,

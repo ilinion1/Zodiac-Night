@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zodiac_night/src/common/app_images.dart';
 import 'package:zodiac_night/src/common/widgets/custom_button.dart';
+import 'package:zodiac_night/src/common/widgets/money_widget.dart';
 import 'package:zodiac_night/src/common/widgets/outline_text.dart';
 import 'package:zodiac_night/src/controllers/settings_controller.dart';
 import 'package:zodiac_night/src/game/components/middle_widget.dart';
 
-enum GameStatus { won, lose, playing }
+enum ZnGameStatus { won, lose, playing }
 
-class MyGame extends StatefulWidget {
-  const MyGame({
+class ZnMyGame extends StatefulWidget {
+  const ZnMyGame({
     super.key,
     required this.level,
   });
@@ -20,14 +21,13 @@ class MyGame extends StatefulWidget {
   final int level;
 
   @override
-  State<MyGame> createState() => _MyGameState();
+  State<ZnMyGame> createState() => _ZnMyGameState();
 }
 
-class _MyGameState extends State<MyGame> {
+class _ZnMyGameState extends State<ZnMyGame> {
   late int level;
-
   // comment
-  String title = 'CLICK TO START';
+  String title = 'Click on the card to start';
 
   // for check
   int selectedIndex = -1;
@@ -35,43 +35,49 @@ class _MyGameState extends State<MyGame> {
   bool isPause = false;
 
   // score & lifes
-  int score = 0;
   int life = 3;
+  int score = 0;
 
   // status
-  GameStatus status = GameStatus.playing;
+  ZnGameStatus status = ZnGameStatus.playing;
 
   late List<int> type;
-
   void levelType() {
     type = switch (level) {
       1 => List.generate(4, (index) => index + 1),
-      2 => List.generate(12, (index) => index + 1),
-      3 => List.generate(12, (index) => index + 1),
+      2 => List.generate(6, (index) => index + 1),
+      3 => List.generate(8, (index) => index + 1),
+      4 => List.generate(10, (index) => index + 1),
+      5 => List.generate(13, (index) => index + 1),
+      6 => List.generate(13, (index) => index + 1),
       _ => List.generate(4, (index) => index + 1),
     };
   }
 
   // Card flipped or not
   late List<bool> cardFlips;
-
   void levelCardFlips() {
     cardFlips = switch (level) {
       1 => List.generate(8, (index) => false),
-      2 => List.generate(24, (index) => false),
-      3 => List.generate(36, (index) => false),
+      2 => List.generate(12, (index) => false),
+      3 => List.generate(16, (index) => false),
+      4 => List.generate(20, (index) => false),
+      5 => List.generate(30, (index) => false),
+      6 => List.generate(36, (index) => false),
       _ => List.generate(8, (index) => false),
     };
   }
 
   // Card flipped & is done
   late List<bool> isDone;
-
   void levelIsDone() {
     isDone = switch (level) {
       1 => List.generate(8, (index) => false),
-      2 => List.generate(24, (index) => false),
-      3 => List.generate(36, (index) => false),
+      2 => List.generate(12, (index) => false),
+      3 => List.generate(16, (index) => false),
+      4 => List.generate(20, (index) => false),
+      5 => List.generate(30, (index) => false),
+      6 => List.generate(36, (index) => false),
       _ => List.generate(8, (index) => false),
     };
   }
@@ -90,7 +96,7 @@ class _MyGameState extends State<MyGame> {
     levelCardFlips();
     levelIsDone();
 
-    if (level == 3 && type.length <= 12) {
+    if ((level == 5 || level == 6) && type.length <= 13) {
       extendSquare();
     }
     type
@@ -104,10 +110,14 @@ class _MyGameState extends State<MyGame> {
     setState(() {});
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
+      print('flip');
       cardFlips = switch (level) {
         1 => List.generate(8, (index) => true),
-        2 => List.generate(24, (index) => true),
-        3 => List.generate(36, (index) => true),
+        2 => List.generate(12, (index) => true),
+        3 => List.generate(16, (index) => true),
+        4 => List.generate(20, (index) => true),
+        5 => List.generate(30, (index) => true),
+        6 => List.generate(36, (index) => true),
         _ => List.generate(8, (index) => true),
       };
       setState(() {});
@@ -124,7 +134,13 @@ class _MyGameState extends State<MyGame> {
   }
 
   void extendSquare() {
-    final extendSquare = List.generate(12, (index) => index + 1);
+    if (level == 5) {
+      final extendSquare = List.generate(13, (index) => index + 1);
+      extendSquare.shuffle();
+      type.addAll(extendSquare.sublist(0, 2));
+      return;
+    }
+    final extendSquare = List.generate(13, (index) => index + 1);
     extendSquare.shuffle();
     type.addAll(extendSquare.sublist(0, 5));
   }
@@ -132,41 +148,38 @@ class _MyGameState extends State<MyGame> {
   // Game Status
   Future<void> isWon() async {
     if (isDone.where((element) => element == false).isNotEmpty) return;
-    status = GameStatus.won;
+    status = ZnGameStatus.won;
     title = 'Congratulations!';
     setState(() {});
-    final model = SettingsProvider.read(context)!.model;
-    if (model.bestScore < score) await model.setScore(score);
+    final model = ZnSettingsProvider.read(context)!.model;
+    if (model.score < score) await model.setScore(score);
   }
 
   Future<void> isLose() async {
     if (life > 0) return;
-    status = GameStatus.lose;
-    title = 'ooohh...';
-
-    score = 0;
+    status = ZnGameStatus.lose;
+    title = 'OOOHHH...';
     setState(() {});
-    final model = SettingsProvider.read(context)!.model;
-    if (model.bestScore < score) await model.setScore(score);
+    final model = ZnSettingsProvider.read(context)!.model;
+    if (model.score < score) await model.setScore(score);
   }
 
   // Buttons pressed
   void onTryAgainPressed() {
-    final model = SettingsProvider.read(context)!.model;
-    if (model.sound) AudioPlayer().play(AssetSource('audio/sound_default.wav'));
-    level = SettingsProvider.read(context)!.model.level;
-    title = 'Click to start';
+    level = ZnSettingsProvider.read(context)!.model.level;
+    title = 'CLICK TO START';
     selectedIndex = -1;
-    success = false;
+    success = null;
     isPause = false;
     life = 3;
-    status = GameStatus.playing;
+    score = 0;
+    status = ZnGameStatus.playing;
     refreshLevel();
     setState(() {});
   }
 
-  void onItemPressed(int itemIndex) {
-    final model = SettingsProvider.read(context)!.model;
+  void onItemPressed(int itemIndex) async {
+    final model = ZnSettingsProvider.read(context)!.model;
     if (model.sound) AudioPlayer().play(AssetSource('audio/sound_default.wav'));
     if (isPause || isDone[itemIndex] || selectedIndex == itemIndex) return;
     setState(() {
@@ -180,7 +193,7 @@ class _MyGameState extends State<MyGame> {
       // if items isn't same
       success = false;
       isPause = true;
-      title = '-1 extra diamond';
+      title = '-1 EXTRA DIAMOND';
       Future.delayed(const Duration(milliseconds: 500), () async {
         isPause = false;
         cardFlips[itemIndex] = false;
@@ -196,8 +209,9 @@ class _MyGameState extends State<MyGame> {
       selectedIndex = -1;
       success = true;
       isPause = true;
-      title = '+30 points';
-      score += 30;
+      title = '+10 POINTS';
+      score += 10;
+      await model.setMoney(10);
       Future.delayed(const Duration(milliseconds: 500), () async {
         isPause = false;
         isDone[isDoneIndex] = true;
@@ -212,10 +226,18 @@ class _MyGameState extends State<MyGame> {
 
   @override
   Widget build(BuildContext context) {
+    //! final model = SettingsProvider.watch(context).model;
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppImages.levelBackground),
+          image: AssetImage(
+            switch (level) {
+              < 3 => ZnAppImages.background1,
+              < 5 => ZnAppImages.background2,
+              < 7 => ZnAppImages.background3,
+              _ => ZnAppImages.platform1,
+            },
+          ),
           fit: BoxFit.cover,
         ),
       ),
@@ -229,32 +251,16 @@ class _MyGameState extends State<MyGame> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                  width: 144,
-                  height: 40,
-                  decoration: ShapeDecoration(
-                    color: Color(0xFF3C053A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: Center(
-                      child: OutlinedTextDefault(
-                    text: 'Score: $score',
-                    textStyle: TextStyle(
-                      fontFamily: 'Luckiest Guy',
-                      fontSize: 18.sp,
-                    ),
-                  ))),
+              ZnScoreWidget(score: score),
               Row(
                 children: List.generate(
                   3,
                   (index) => Image.asset(
                     life >= (index + 1)
-                        ? AppImages.diamond
-                        : AppImages.diamondBack,
-                    width: 36,
-                    height: 30,
+                        ? ZnAppImages.diamond
+                        : ZnAppImages.diamondBack,
+                    width: 32.w,
+                    height: 32.h,
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -269,56 +275,57 @@ class _MyGameState extends State<MyGame> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Stack(
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.center,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 10.h),
-                    child: Image.asset(
-                      AppImages.platform,
-                      width: 393.w,
-                      height: 210.h,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  Column(
+                  // Image.asset(
+                  //   AppImages.star,
+                  //   width: 216.w,
+                  //   height: 216.h,
+                  // ),
+                  Stack(
+                    alignment: Alignment.bottomCenter,
                     children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Image.asset(
-                            AppImages.labelBack,
-                            width: 110.w,
-                            height: 36.h,
-                            fit: BoxFit.contain,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 5.0.h),
-                            child: OutlinedTextDefault(
-                              text: 'Level: $level',
-                              textStyle: TextStyle(
-                                fontFamily: 'Campton Bold',
-                                fontSize: 16.sp,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20.h),
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'Campton Bold',
-                          fontSize: 24,
-                          color: Colors.white,
+                      Padding(
+                        padding: EdgeInsets.only(top: 16.h),
+                        child: Image.asset(
+                          switch (level) {
+                            < 3 => ZnAppImages.platform1,
+                            < 5 => ZnAppImages.platform2,
+                            < 7 => ZnAppImages.platform3,
+                            _ => ZnAppImages.platform1,
+                          },
+                          width: 332.w,
+                          height: 216.h,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      SizedBox(height: 20.h)
+                      Column(
+                        children: [
+                          ZnOutlinedText(
+                            text: 'Level: $level',
+                            textStyle: TextStyle(
+                              fontSize: 15.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 17.h),
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 30.h)
+                        ],
+                      ),
                     ],
                   ),
                 ],
               ),
-              MiddleWidget(
+              ZnMiddleWidget(
                 status: status,
                 type: type,
                 cardFlips: cardFlips,
@@ -328,9 +335,9 @@ class _MyGameState extends State<MyGame> {
                 onTryAgainPressed: onTryAgainPressed,
                 onItemPressed: onItemPressed,
               ),
-              CustomButtonDefolut(
+              ZnCustomButton(
                 onPressed: () => Navigator.pop(context),
-                text: 'LOBBY',
+                text: 'Levels',
               ),
             ],
           ),

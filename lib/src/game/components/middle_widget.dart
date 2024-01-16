@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zodiac_night/src/common/widgets/custom_button.dart';
 import 'package:zodiac_night/src/common/widgets/outline_text.dart';
-import 'package:zodiac_night/src/controllers/settings_controller.dart';
-import 'package:zodiac_night/src/game/levels/level1.dart';
-import 'package:zodiac_night/src/game/levels/level2.dart';
+import 'package:zodiac_night/src/game/components/levels/level1.dart';
+import 'package:zodiac_night/src/game/components/levels/level3.dart';
 import 'package:zodiac_night/src/game/game.dart';
 
-import '../levels/level3.dart';
-
-class MiddleWidget extends StatelessWidget {
-  const MiddleWidget({
+class ZnMiddleWidget extends StatelessWidget {
+  const ZnMiddleWidget({
     super.key,
     required this.status,
     required this.type,
@@ -21,7 +19,7 @@ class MiddleWidget extends StatelessWidget {
     required this.onItemPressed,
   });
 
-  final GameStatus status;
+  final ZnGameStatus status;
   final List<int> type;
   final List<bool> cardFlips;
   final List<bool> isDone;
@@ -32,33 +30,61 @@ class MiddleWidget extends StatelessWidget {
 
   Widget playingWidget() {
     return switch (level) {
-      1 => Level1(
+      1 => ZnLevel1(
           type: type,
           cardFlips: cardFlips,
           isDone: isDone,
           success: success,
-          onItemPressed: (int itemIndex) => onItemPressed(itemIndex),
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
         ),
-      2 => Level2(
+      2 => ZnLevel1(
           type: type,
           cardFlips: cardFlips,
           isDone: isDone,
           success: success,
-          onItemPressed: (int itemIndex) => onItemPressed(itemIndex),
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
         ),
-      3 => Level3(
+      3 => ZnLevel1(
           type: type,
           cardFlips: cardFlips,
           isDone: isDone,
           success: success,
-          onItemPressed: (int itemIndex) => onItemPressed(itemIndex),
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
         ),
-      _ => Level1(
+      4 => ZnLevel1(
           type: type,
           cardFlips: cardFlips,
           isDone: isDone,
           success: success,
-          onItemPressed: (int itemIndex) => onItemPressed(itemIndex),
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
+        ),
+      5 => ZnLevel3(
+          type: type,
+          cardFlips: cardFlips,
+          isDone: isDone,
+          success: success,
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
+        ),
+      6 => ZnLevel3(
+          type: type,
+          cardFlips: cardFlips,
+          isDone: isDone,
+          success: success,
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
+        ),
+      _ => ZnLevel1(
+          type: type,
+          cardFlips: cardFlips,
+          isDone: isDone,
+          success: success,
+          onItemPressed: (int itemIndex) async =>
+              await onItemPressed(itemIndex),
         ),
     };
   }
@@ -66,67 +92,73 @@ class MiddleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (status) {
-      GameStatus.playing => playingWidget(),
-      GameStatus.lose => Column(
+      ZnGameStatus.playing => playingWidget(),
+      ZnGameStatus.lose => Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const Column(
               children: [
-                OutlinedTextDefault(
-                  text: 'GAME OVER',
-                  strokeWidth: 8,
+                ZnOutlinedText(
+                  strokeWidth: 10,
+                  text: 'Game over',
                   textStyle: TextStyle(
                     fontSize: 48,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                OutlinedTextDefault(
-                  text: 'try your luck again!',
+                ZnOutlinedText(
+                  text: 'Please Try  Your \nLuck Again',
                   textStyle: TextStyle(
                     fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            CustomButtonDefolut(
+            const SizedBox(height: 20),
+            ZnCustomButton(
               onPressed: onTryAgainPressed,
-              text: 'Try again',
+              text: 'RESTART',
             ),
             const SizedBox(height: 22),
           ],
         ),
-      GameStatus.won => Column(
+      ZnGameStatus.won => Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const OutlinedTextDefault(
+            ZnOutlinedText(
+              strokeWidth: 10,
               text: 'Big win!',
-              strokeWidth: 8,
               textStyle: TextStyle(
-                fontSize: 48,
+                fontSize: 48.sp,
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(
-              width: 236,
-              child: OutlinedTextDefault(
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 70.w),
+              child: ZnOutlinedText(
                 text: 'You managed to collect all the pairs!',
                 textStyle: TextStyle(
-                  fontSize: 20,
+                  fontSize: 20.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
-            CustomButtonDefolut(
+            const SizedBox(height: 10),
+            ZnCustomButton(
               onPressed: () async {
-                final model = SettingsProvider.read(context)!.model;
-                model.setLevel(level % 3 + 1);
-                await model.setSettings();
-                onTryAgainPressed();
+                Navigator.pop(context);
               },
-              text: 'Next level',
+              text: 'TO NEXT LEVEL',
             ),
             const SizedBox(height: 10),
-            CustomButtonDefolut(
+            ZnCustomButton(
               onPressed: onTryAgainPressed,
-              text: 'Try again',
+              text: 'RESTART',
             ),
             const SizedBox(height: 22),
           ],

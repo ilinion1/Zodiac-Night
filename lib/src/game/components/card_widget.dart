@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CardWidget extends StatefulWidget {
+class ZnCardWidget extends StatefulWidget {
   final int value;
   final bool isFlipped;
   final Function onPressed;
   final Color color;
   final bool isDone;
 
-  const CardWidget({
+  const ZnCardWidget({
     super.key,
     required this.value,
     required this.isFlipped,
@@ -20,10 +20,10 @@ class CardWidget extends StatefulWidget {
   });
 
   @override
-  State<CardWidget> createState() => _CardFlipperState();
+  State<ZnCardWidget> createState() => _CardFlipperState();
 }
 
-class _CardFlipperState extends State<CardWidget>
+class _CardFlipperState extends State<ZnCardWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   bool _isFront = true;
@@ -36,6 +36,7 @@ class _CardFlipperState extends State<CardWidget>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
+    _isFront = !widget.isFlipped;
   }
 
   @override
@@ -45,7 +46,7 @@ class _CardFlipperState extends State<CardWidget>
   }
 
   @override
-  void didUpdateWidget(covariant CardWidget oldWidget) {
+  void didUpdateWidget(covariant ZnCardWidget oldWidget) {
     if (widget.isFlipped != oldWidget.isFlipped) {
       if (_isFlipping || widget.isDone) return;
       if (_isFront) {
@@ -187,7 +188,7 @@ class BackCard extends StatelessWidget {
                   )),
               // color: isFlipped ? Colors.blue : Colors.grey,
               child: Image.asset(
-                'assets/images/el$value.png',
+                'assets/images/z$value.png',
                 width: 40.w,
                 height: 40.h,
                 fit: BoxFit.contain,

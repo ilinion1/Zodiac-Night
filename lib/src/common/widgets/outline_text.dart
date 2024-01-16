@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:zodiac_night/src/common/app_colors.dart';
 
-class OutlinedTextDefault extends StatelessWidget {
-  const OutlinedTextDefault({
+class ZnOutlinedText extends StatelessWidget {
+  const ZnOutlinedText({
     super.key,
     required this.text,
     required this.textStyle,
@@ -18,7 +17,7 @@ class OutlinedTextDefault extends StatelessWidget {
     return Stack(
       children: [
         Text(
-          text.toUpperCase(),
+          text,
           textAlign: TextAlign.center,
           style: textStyle.merge(
             TextStyle(
@@ -28,12 +27,12 @@ class OutlinedTextDefault extends StatelessWidget {
                 ..style = PaintingStyle.stroke
                 ..strokeCap = StrokeCap.round
                 ..strokeWidth = strokeWidth
-                ..color = AppColors.mainColor,
+                ..color = const Color(0xFF150093),
             ),
           ),
         ),
         Text(
-          text.toUpperCase(),
+          text,
           textAlign: TextAlign.center,
           style: textStyle.merge(
             const TextStyle(

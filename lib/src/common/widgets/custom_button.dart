@@ -2,28 +2,29 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zodiac_night/src/common/app_images.dart';
-import 'package:zodiac_night/src/common/widgets/outline_text.dart';
 import 'package:zodiac_night/src/controllers/settings_controller.dart';
 
-class CustomButtonDefolut extends StatefulWidget {
-  const CustomButtonDefolut({
+class ZnCustomButton extends StatefulWidget {
+  const ZnCustomButton({
     super.key,
     required this.onPressed,
     required this.text,
+    this.buttonType = 'button',
   });
 
   final Function()? onPressed;
   final String text;
+  final String buttonType;
 
   @override
-  State createState() => _CustomButtonState();
+  State<ZnCustomButton> createState() => _ZnCustomButtonState();
 }
 
-class _CustomButtonState extends State<CustomButtonDefolut> {
+class _ZnCustomButtonState extends State<ZnCustomButton> {
   bool isPressed = false;
 
   void onPressed() {
-    final model = SettingsProvider.read(context)?.model;
+    final model = ZnSettingsProvider.read(context)?.model;
     if (model?.sound ?? false) {
       AudioPlayer().play(AssetSource('audio/sound_default.wav'));
     }
@@ -51,17 +52,25 @@ class _CustomButtonState extends State<CustomButtonDefolut> {
         alignment: Alignment.center,
         children: [
           Image.asset(
-            isPressed ? AppImages.buttonPressed : AppImages.button,
+            switch (widget.buttonType) {
+              'daily' => isPressed
+                  ? ZnAppImages.dailyButtonPressed
+                  : ZnAppImages.dailyButton,
+              'level' => isPressed
+                  ? ZnAppImages.levelButtonPressed
+                  : ZnAppImages.levelButton,
+              _ => isPressed ? ZnAppImages.buttonPressed : ZnAppImages.button,
+            },
             fit: BoxFit.contain,
-            width: 246.w,
-            height: 64.h,
+            width: widget.buttonType == 'daily' ? 276.w : 246.w,
+            height: widget.buttonType == 'daily' ? 48.h : 64.h,
           ),
-          OutlinedTextDefault(
-            text: widget.text,
-            textStyle: TextStyle(
-              fontFamily: 'Luckiest Guy',
-              fontSize: 20.sp,
+          Text(
+            widget.text,
+            style: TextStyle(
+              fontSize: widget.buttonType == 'daily' ? 14.sp : 20.sp,
               color: Colors.white,
+              fontWeight: FontWeight.w800,
             ),
           )
         ],

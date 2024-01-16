@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:zodiac_night/src/game/components/card_widget.dart';
 
-class Level3 extends StatelessWidget {
-  const Level3({
+class ZnLevel3 extends StatelessWidget {
+  const ZnLevel3({
     super.key,
     required this.type,
     required this.cardFlips,
@@ -27,7 +27,7 @@ class Level3 extends StatelessWidget {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 6,
       ),
-      itemBuilder: (context, index) => CardWidget(
+      itemBuilder: (context, index) => ZnCardWidget(
         value: type[index],
         isFlipped: cardFlips[index],
         isDone: isDone[index],
